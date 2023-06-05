@@ -8,11 +8,10 @@ const visibilityAnimation = keyframes`
 `
 
 export const DirectoryContainer = styled.div`
-  width: 80%;
   margin: auto;
   padding-top: 70px;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: space-evenly;
+  align-items: center;
   animation: ${visibilityAnimation} 2s linear forwards;;
 `

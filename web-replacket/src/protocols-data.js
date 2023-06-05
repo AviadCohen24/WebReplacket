@@ -6,18 +6,6 @@ const PROTOCOLS_DATA = [
         url: '1553'
     },
     {
-        title: 'TCP',
-        subTitle: 'tcp is',
-        description: 'tcp is ok',
-        url: 'TCP'
-    },
-    {
-        title: 'UDP',
-        subTitle: 'udp is',
-        description: 'udp is also ok',
-        url: 'UDP'
-    },
-    {
         title: 'Send Packets',
         subTitle: 'send packets over the wire',
         description: 'this is something different',

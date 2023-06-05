@@ -1,13 +1,15 @@
-import TextField from "@mui/material/TextField";
-import CircularProgress from '@mui/material/CircularProgress';
-import { Autocomplete } from "@mui/material";
+import { Autocomplete, Box, CircularProgress,
+         TextField } from "@mui/material";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from 'react-redux'
 
-import { useState } from "react";
-import { useEffect } from "react";
-
+import { selectProgressValue, selectNIC, selectFilePath } from "../../store/SendPackets/sendPackets.selector";
 import { ConfigurationContainer } from './send-packets-gui.styles'
+import { setFilePath, setNIC } from '../../store/SendPackets/sendPackets.action'
+
 import HeroBanner from "../../Component/HeroBanner/HeroBanner.component";
 import FileUpload from "../../Component/Upload-file/upload-file.component";
+import LinearProgressWithLabel from "../../Component/LinearProgressWithLabel/linear-progress-with-label.component";
 import PROTOCOLS_DATA from "../../protocols-data";
 
 function sleep(delay = 0) {
@@ -17,16 +19,19 @@ function sleep(delay = 0) {
   }
 
 const SendPacketsGUI = () => {
-    const [NIC, setNIC] = useState([])
-    const [selectedNIC, setSelectedNIC] = useState('')
+    const [availableNIC, setAvailableNIC] = useState([])
     const [isSelectorOpen, setSelectorOpen] = useState(false)
-    const [file, setFile] = useState(null)
-    
-    const loading = isSelectorOpen && NIC.length === 0;
+    const dispatch = useDispatch();
+
+    const selectedNIC = useSelector(selectNIC)
+    const progressValue = useSelector(selectProgressValue)
+    const fileTypes = ["pcap"];
+    const loading = isSelectorOpen && availableNIC.length === 0;
     const protocol = PROTOCOLS_DATA.find(protocol => protocol.title === 'Send Packets')
 
     const ChangeSelectorStateHandler = () => setSelectorOpen(!isSelectorOpen);
-    const SelectNICHandler = (event, newValue) => setSelectedNIC(newValue);
+    const FileChangedHandler = (file) => dispatch(setFilePath(file));
+    const changeNICHandler = (event, newNIC) => {dispatch(setNIC(newNIC));}
 
     useEffect(() => {
         let active = true;
@@ -38,7 +43,7 @@ const SendPacketsGUI = () => {
 
             if(active)
             {
-                setNIC(['1425'])
+                setAvailableNIC(['1425'])
             }
         })();
 
@@ -47,8 +52,8 @@ const SendPacketsGUI = () => {
 
     useEffect(() => {
         if(!isSelectorOpen)
-            setNIC([]);
-    })
+            setAvailableNIC([]);
+    }, [isSelectorOpen])
 
     return (
         <div>
@@ -56,9 +61,9 @@ const SendPacketsGUI = () => {
             <ConfigurationContainer>
                 <Autocomplete id="NIC" sx={{ width: 300 }} 
                             open={isSelectorOpen} onOpen={ChangeSelectorStateHandler} onClose={ChangeSelectorStateHandler}
-                            options={NIC} 
+                            options={availableNIC} 
                             value={selectedNIC}
-                            onChange={SelectNICHandler}
+                            onChange={changeNICHandler}
                             renderInput={(params) => (
                                 <TextField {...params} label="Network interface controller"
                                 InputProps={{
@@ -72,7 +77,10 @@ const SendPacketsGUI = () => {
                                 }}
                                 />
                             )}/>
-                <FileUpload fileTypes={["JPG"]} fileSetter={setFile} />
+                <FileUpload fileTypes={fileTypes} fileSetter={FileChangedHandler} />
+                <Box sx={{ width: '35%' }}>
+                    <LinearProgressWithLabel value={progressValue} />
+                </Box>
             </ConfigurationContainer>
         </div>
     )

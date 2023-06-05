@@ -1,11 +1,12 @@
 import { FileUploader } from "react-drag-drop-files";
 
-const FileUpload = ({ fileTypes, fileSetter }) => {
-
+const FileUpload = ({ fileTypes, fileSetter, label }) => {
     const handleChange = (file) => fileSetter(file);
 
     return (
-        <FileUploader handleChange={handleChange} name="file" types={fileTypes} />
+        <FileUploader handleChange={handleChange} label={label} 
+                      name="file" 
+                      types={fileTypes}/>
     )
 }
 

@@ -2,7 +2,7 @@ import { SEND_PACKETS_TYPES } from "./sendPackets.types";
 
 const SEND_PACKETS_INITIAL_STATE = {
     progressValue: 0,
-    filePath: '',
+    file: '',
     nic: null
 }
 
@@ -15,10 +15,10 @@ export const sendPacketsReducer = (state = SEND_PACKETS_INITIAL_STATE, action = 
                 ...state,
                 progressValue: payload,
             }
-        case SEND_PACKETS_TYPES.SET_FILE_PATH:
+        case SEND_PACKETS_TYPES.SET_FILE:
             return {
                 ...state,
-                filePath: payload,
+                file: payload,
             }
         case SEND_PACKETS_TYPES.SET_NIC:
             return {

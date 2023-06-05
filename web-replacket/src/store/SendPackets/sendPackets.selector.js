@@ -7,10 +7,16 @@ export const selectProgressValue = createSelector(
     (sender) => sender.progressValue
 )
 
-export const selectFilePath = createSelector(
+export const selectFile = createSelector(
     [selectSendPacketReducer],
-    (sender) => sender.filePath
+    (sender) => sender.file
 )
+
+export const selectFileName = createSelector(
+    [selectFile],
+    (file) => file.name
+)
+
 
 export const selectNIC = createSelector(
     [selectSendPacketReducer],

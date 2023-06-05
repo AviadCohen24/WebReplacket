@@ -3,10 +3,12 @@ import { Autocomplete, Box, CircularProgress,
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 
-import { selectProgressValue, selectNIC, selectFilePath } from "../../store/SendPackets/sendPackets.selector";
+import { selectProgressValue, selectNIC, selectFileName } from "../../store/SendPackets/sendPackets.selector";
 import { ConfigurationContainer } from './send-packets-gui.styles'
-import { setFilePath, setNIC } from '../../store/SendPackets/sendPackets.action'
+import { setFile, setNIC } from '../../store/SendPackets/sendPackets.action'
+import { sendPacketsRequest, getAvailableNIC } from '../../utils/server/server.utils'
 
+import Button from '../../Component/Button/button.component'
 import HeroBanner from "../../Component/HeroBanner/HeroBanner.component";
 import FileUpload from "../../Component/Upload-file/upload-file.component";
 import LinearProgressWithLabel from "../../Component/LinearProgressWithLabel/linear-progress-with-label.component";
@@ -23,6 +25,7 @@ const SendPacketsGUI = () => {
     const [isSelectorOpen, setSelectorOpen] = useState(false)
     const dispatch = useDispatch();
 
+    const fileName = useSelector(selectFileName);
     const selectedNIC = useSelector(selectNIC)
     const progressValue = useSelector(selectProgressValue)
     const fileTypes = ["pcap"];
@@ -30,8 +33,9 @@ const SendPacketsGUI = () => {
     const protocol = PROTOCOLS_DATA.find(protocol => protocol.title === 'Send Packets')
 
     const ChangeSelectorStateHandler = () => setSelectorOpen(!isSelectorOpen);
-    const FileChangedHandler = (file) => dispatch(setFilePath(file));
-    const changeNICHandler = (event, newNIC) => {dispatch(setNIC(newNIC));}
+    const FileChangedHandler = (file) => dispatch(setFile(file));
+    const changeNICHandler = (event, newNIC) => dispatch(setNIC(newNIC));
+    const handleSendRequest = () => sendPacketsRequest();
 
     useEffect(() => {
         let active = true;
@@ -39,11 +43,9 @@ const SendPacketsGUI = () => {
         if(!loading)
             return undefined;
         (async () => {
-            await sleep(1e3);
-
             if(active)
             {
-                setAvailableNIC(['1425'])
+                setAvailableNIC(getAvailableNIC());
             }
         })();
 
@@ -77,10 +79,13 @@ const SendPacketsGUI = () => {
                                 }}
                                 />
                             )}/>
-                <FileUpload fileTypes={fileTypes} fileSetter={FileChangedHandler} />
+                <FileUpload fileTypes={fileTypes} fileSetter={FileChangedHandler} 
+                            label={`${fileName? fileName : "Upload or drop a file right here"}`}
+                            />
                 <Box sx={{ width: '35%' }}>
                     <LinearProgressWithLabel value={progressValue} />
                 </Box>
+                <Button onClick={handleSendRequest}>Start sending</Button>
             </ConfigurationContainer>
         </div>
     )

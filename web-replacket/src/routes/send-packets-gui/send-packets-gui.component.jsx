@@ -3,7 +3,7 @@ import { Autocomplete, Box, CircularProgress,
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 
-import { selectProgressValue, selectNIC, selectFileName } from "../../store/SendPackets/sendPackets.selector";
+import { selectProgressValue, selectNIC, selectFile } from "../../store/SendPackets/sendPackets.selector";
 import { ConfigurationContainer } from './send-packets-gui.styles'
 import { setFile, setNIC } from '../../store/SendPackets/sendPackets.action'
 import { sendPacketsRequest, getAvailableNIC } from '../../utils/server/server.utils'
@@ -25,17 +25,19 @@ const SendPacketsGUI = () => {
     const [isSelectorOpen, setSelectorOpen] = useState(false)
     const dispatch = useDispatch();
 
-    const fileName = useSelector(selectFileName);
+    const file = useSelector(selectFile);
+    const fileTypes = ["pcap"];
+
     const selectedNIC = useSelector(selectNIC)
     const progressValue = useSelector(selectProgressValue)
-    const fileTypes = ["pcap"];
+
     const loading = isSelectorOpen && availableNIC.length === 0;
     const protocol = PROTOCOLS_DATA.find(protocol => protocol.title === 'Send Packets')
 
     const ChangeSelectorStateHandler = () => setSelectorOpen(!isSelectorOpen);
-    const FileChangedHandler = (file) => dispatch(setFile(file));
+    const FileChangedHandler = (newFile) => dispatch(setFile(newFile));
     const changeNICHandler = (event, newNIC) => dispatch(setNIC(newNIC));
-    const handleSendRequest = () => sendPacketsRequest();
+    const handleSendRequest = () => sendPacketsRequest(selectedNIC, file);
 
     useEffect(() => {
         let active = true;
@@ -45,7 +47,8 @@ const SendPacketsGUI = () => {
         (async () => {
             if(active)
             {
-                setAvailableNIC(getAvailableNIC());
+                const availableNIC = await getAvailableNIC();
+                setAvailableNIC(availableNIC);
             }
         })();
 
@@ -80,7 +83,7 @@ const SendPacketsGUI = () => {
                                 />
                             )}/>
                 <FileUpload fileTypes={fileTypes} fileSetter={FileChangedHandler} 
-                            label={`${fileName? fileName : "Upload or drop a file right here"}`}
+                            label={`${file? file.name : "Upload or drop a file right here"}`}
                             />
                 <Box sx={{ width: '35%' }}>
                     <LinearProgressWithLabel value={progressValue} />

@@ -1,11 +1,8 @@
-import SERVER_ADDRESS from "../../SERVER_DATA.JS"
-import { selectFile, selectNIC} from '../../store/SendPackets/sendPackets.selector'
-
-import { useSelector } from "react-redux";
+import SERVER_ADDRESS from '../../SERVER_DATA.js';
 
 export const getAvailableNIC = async () => {
     try{
-        const response = await fetch(SERVER_ADDRESS.getAvailableNIC);
+        const response = await fetch(SERVER_ADDRESS.getNICList);
         if(!response.ok)
             throw new Error("Network error while trying get available NICs")
         const data = await response.json();
@@ -17,24 +14,20 @@ export const getAvailableNIC = async () => {
 }
 
 
-export const sendPacketsRequest = async () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const nic = useSelector(selectNIC);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const file = useSelector(selectFile);
-    const data = JSON.stringify({nic, file})
+export const sendPacketsRequest = async (nic, file) => {
+    file["nic"] = nic
     try{
-        const response = await fetch(SERVER_ADDRESS.sendPacketsUrl, {
+        const response = await fetch('https://localhost:7184/PacketSender', {
             method: 'POST',
-            body: data,
+            body: {data: file},
             headers: {
                 'content-type': 'application/json',
             }
+        }).then(response => {
+            if(!response.ok){
+                throw new Error(response.status)
+            }
         });
-
-        if(!response.ok){
-            throw new Error('Send packets respone wasn`t ok')
-        }
 
         const result = await response.json();
         return result;

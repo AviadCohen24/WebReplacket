@@ -1,7 +1,7 @@
-export const SERVER_ADDRESS = {
-    url: 'http://localhost:8080/',
-    sendPacketsUrl: `${this.url}sendPackets`,
-    getNICList: `${this.url}getAvailableNIC`
-}
+const SERVER_ADDRESS = {
+    url: 'https://localhost:7184/',
+    sendPacketsUrl: 'https://localhost:7184/PacketSender',
+    getNICList: 'https://localhost:7184/PacketSender/getAvailableNIC'
+};
 
-
+export default SERVER_ADDRESS;

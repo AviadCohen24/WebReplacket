@@ -1,4 +1,5 @@
-﻿using SharpPcap;
+﻿using Newtonsoft.Json;
+using SharpPcap;
 using SharpPcap.LibPcap;
 using System.Globalization;
 
@@ -7,8 +8,9 @@ namespace ReplacketServer.Models
     public class NicDevicesManager
     {
         #region Properties
-        public static List<LibPcapLiveDevice> Devices { get; set; }
+        private static SendPacketsRequestHandler _requestHandler;
 
+        public static List<LibPcapLiveDevice> Devices { get; set; }
         private static NicDevicesManager instance;
         public static NicDevicesManager Instance
         {
@@ -47,6 +49,17 @@ namespace ReplacketServer.Models
             foreach (LibPcapLiveDevice device in CaptureDeviceList.Instance)
             {
                 Devices.Add(device);
+            }
+        }
+        #endregion
+
+        #region Send packets functions
+        public void SendPacketsRequestHandler(object requestParameters)
+        {
+            if(requestParameters != null)
+            {
+                _requestHandler = JsonConvert.DeserializeObject<SendPacketsRequestHandler>(requestParameters.ToString());
+                _requestHandler.StartSendPackets();
             }
         }
         #endregion

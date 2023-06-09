@@ -2,7 +2,7 @@ import SERVER_ADDRESS from '../../SERVER_DATA.js';
 
 export const getAvailableNIC = async () => {
     try{
-        const response = await fetch(SERVER_ADDRESS.getNICList);
+        const response = await fetch(SERVER_ADDRESS.getNICListURL);
         if(!response.ok)
             throw new Error("Network error while trying get available NICs")
         const data = await response.json();
@@ -15,25 +15,29 @@ export const getAvailableNIC = async () => {
 
 
 export const sendPacketsRequest = async (nic, file) => {
-    file["nic"] = nic
-    try{
-        const response = await fetch('https://localhost:7184/PacketSender', {
-            method: 'POST',
-            body: {data: file},
-            headers: {
-                'content-type': 'application/json',
-            }
-        }).then(response => {
+    if(nic && file.name){
+        const data = {nic: nic, fileName: file.name}
+        const jsonData = JSON.stringify(data);
+        console.log(jsonData);
+        try{
+            const response = await fetch(SERVER_ADDRESS.sendPacketsPostRequestURL, {
+                method: 'POST',
+                body: jsonData,
+                headers: {
+                    'content-type': 'application/json',    
+                    'Accept': 'application/json'
+                }
+            }).then(response => response);
+    
             if(!response.ok){
-                throw new Error(response.status)
+                console.log(response);
+                console.log("response isnt ok")
             }
-        });
-
-        const result = await response.json();
-        return result;
-    }
-    catch(error){
-        console.error('error sending send packets request', error)
-        throw error;
+            
+        }
+        catch(error){
+            console.error('error sending send packets request', error)
+            throw error;
+        }
     }
 }

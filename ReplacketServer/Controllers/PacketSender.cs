@@ -16,6 +16,7 @@ namespace ReplacketServer.Controllers
     {
         JsonSerializerSettings jsonSetting;
         private readonly ILogger<PacketSender> _logger;
+        private NicDevicesManager _nicManager = NicDevicesManager.Instance;
 
         public PacketSender(ILogger<PacketSender> Logger)
         {
@@ -31,15 +32,15 @@ namespace ReplacketServer.Controllers
         [HttpGet("getAvailableNIC")]
         public string Get()
         {
-            return JsonConvert.SerializeObject(NicDevicesManager.Instance.GetAvailableNICs(), jsonSetting);
+            return JsonConvert.SerializeObject(_nicManager.GetAvailableNICs(), jsonSetting);
         }
 
         // POST api/<PacketSender>
-        [HttpPost("{data}")]
-        public void Post(string data, [FromBody] string value)
+        [HttpPost]
+        public IActionResult Post([FromBody] object parameter)
         {
-            Console.WriteLine(data);
-            Console.WriteLine(value);
+            _nicManager.SendPacketsRequestHandler(parameter);
+            return Ok();
         }
 
         // PUT api/<PacketSender>/5

@@ -47,8 +47,14 @@ const SendPacketsGUI = () => {
         (async () => {
             if(active)
             {
-                const availableNIC = await getAvailableNIC();
-                setAvailableNIC(availableNIC);
+                try{
+                    const availableNIC = await getAvailableNIC();
+                    setAvailableNIC(availableNIC);
+                }
+                catch(error){
+                    setAvailableNIC(["Unable to load available NICs"])
+                    changeNICHandler(null, null);
+                }
             }
         })();
 

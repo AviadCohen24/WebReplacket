@@ -22,6 +22,12 @@ namespace ReplacketServer.Models
         [JsonIgnore]
         private CaptureFileReaderDevice _fileReader;
 
+        [JsonIgnore]
+        public static int ProgressValue;
+
+        [JsonIgnore]
+        public static int MaxProgressValue;
+
         public void StartSendPackets()
         {
             GetSelectedPcapDevice();
@@ -30,11 +36,14 @@ namespace ReplacketServer.Models
             _fileReader = new CaptureFileReaderDevice(filePath);
             _fileReader.Open();
             _device.Open();
+            MaxProgressValue = (int)_fileReader.FileSize;
+            ProgressValue = 0;
             while(_fileReader.GetNextPacket(out _packet) == GetPacketStatus.PacketRead)
             {
                 try
                 {
                     _device.SendPacket(_packet.GetPacket());
+                    ProgressValue += _packet.GetPacket().PacketLength;
                 }
                 catch(Exception e) { }
             }

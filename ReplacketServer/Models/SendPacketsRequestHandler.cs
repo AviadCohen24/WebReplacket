@@ -1,4 +1,5 @@
-﻿using SharpPcap;
+﻿using Microsoft.AspNet.SignalR;
+using SharpPcap;
 using SharpPcap.LibPcap;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
@@ -28,26 +29,22 @@ namespace ReplacketServer.Models
         [JsonIgnore]
         public static int MaxProgressValue;
 
-        [JsonIgnore]
-        private static ProgressHub _progressHub = new ProgressHub();
-
-        public void StartSendPackets()
+        public void StartSendPackets(ProgressHub progressHub)
         {
             GetSelectedPcapDevice();
             FindFileInDrives();
-            PacketCapture _packet;
             _fileReader = new CaptureFileReaderDevice(filePath);
             _fileReader.Open();
             _device.Open();
             MaxProgressValue = (int)_fileReader.FileSize;
             ProgressValue = 0;
-            while(_fileReader.GetNextPacket(out _packet) == GetPacketStatus.PacketRead)
+            while(_fileReader.GetNextPacket(out PacketCapture _packet) == GetPacketStatus.PacketRead)
             {
                 try
                 {
                     _device.SendPacket(_packet.GetPacket());
                     ProgressValue += _packet.GetPacket().PacketLength;
-                    _progressHub.SendMessage(ProgressValue);
+                    progressHub.SendMessage(ProgressValue).Wait();
                 }
                 catch(Exception e) { }
             }

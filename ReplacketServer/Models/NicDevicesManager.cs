@@ -54,12 +54,12 @@ namespace ReplacketServer.Models
         #endregion
 
         #region Send packets functions
-        public void SendPacketsRequestHandler(object requestParameters)
+        public void SendPacketsRequestHandler(object requestParameters, ProgressHub progressHub)
         {
             if(requestParameters != null)
             {
                 _requestHandler = JsonConvert.DeserializeObject<SendPacketsRequestHandler>(requestParameters.ToString());
-                _requestHandler.StartSendPackets();
+                _requestHandler.StartSendPackets(progressHub);
             }
         }
         #endregion

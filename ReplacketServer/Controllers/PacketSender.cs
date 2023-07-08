@@ -17,9 +17,11 @@ namespace ReplacketServer.Controllers
         JsonSerializerSettings jsonSetting;
         private readonly ILogger<PacketSender> _logger;
         private NicDevicesManager _nicManager = NicDevicesManager.Instance;
+        private readonly ProgressHub _progressHub;
 
-        public PacketSender(ILogger<PacketSender> Logger)
+        public PacketSender(ILogger<PacketSender> Logger, ProgressHub progressHub)
         {
+            _progressHub = progressHub;
             _logger = Logger;
             jsonSetting = new JsonSerializerSettings()
             {
@@ -39,7 +41,7 @@ namespace ReplacketServer.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] object parameter)
         {
-            _nicManager.SendPacketsRequestHandler(parameter);
+            _nicManager.SendPacketsRequestHandler(parameter, _progressHub);
             return Ok();
         }
 

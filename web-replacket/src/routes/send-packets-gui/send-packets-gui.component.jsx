@@ -1,11 +1,11 @@
-import { Autocomplete, Box, CircularProgress,
-         TextField } from "@mui/material";
+import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
+import * as signalR from '@microsoft/signalr';
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 
 import { selectProgressValue, selectNIC, selectFile } from "../../store/SendPackets/sendPackets.selector";
 import { ConfigurationContainer } from './send-packets-gui.styles'
-import { setFile, setNIC } from '../../store/SendPackets/sendPackets.action'
+import { setFile, setNIC, setProgressValue } from '../../store/SendPackets/sendPackets.action'
 import { sendPacketsRequest, getAvailableNIC } from '../../utils/server/server.utils'
 
 import Button from '../../Component/Button/button.component'
@@ -38,6 +38,33 @@ const SendPacketsGUI = () => {
     const FileChangedHandler = (newFile) => dispatch(setFile(newFile));
     const changeNICHandler = (event, newNIC) => dispatch(setNIC(newNIC));
     const handleSendRequest = () => sendPacketsRequest(selectedNIC, file);
+    const changeProgressValueHandler = (newValue) => dispatch(setProgressValue(newValue));
+
+    useEffect(() => {
+        const connection = new signalR.HubConnectionBuilder()
+          .withUrl('https://localhost:7184/progresshub') // The default SignalR hub URL
+          .build();
+    
+        connection.on('ReceiveProgress', (newProgress) => {
+            console.log(`progress value ${newProgress}`)
+            changeProgressValueHandler(newProgress);
+        });
+    
+        async function startConnection() {
+          try {
+            await connection.start();
+            console.log('SignalR connected');
+          } catch (error) {
+            console.error('SignalR connection error:', error);
+          }
+        }
+    
+        startConnection();
+    
+        return () => {
+          connection.stop();
+        };
+      }, []);
 
     useEffect(() => {
         let active = true;

@@ -28,6 +28,9 @@ namespace ReplacketServer.Models
         [JsonIgnore]
         public static int MaxProgressValue;
 
+        [JsonIgnore]
+        private static ProgressHub _progressHub = new ProgressHub();
+
         public void StartSendPackets()
         {
             GetSelectedPcapDevice();
@@ -44,6 +47,7 @@ namespace ReplacketServer.Models
                 {
                     _device.SendPacket(_packet.GetPacket());
                     ProgressValue += _packet.GetPacket().PacketLength;
+                    _progressHub.SendMessage(ProgressValue);
                 }
                 catch(Exception e) { }
             }

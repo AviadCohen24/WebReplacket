@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.WebSockets;
 using ReplacketServer.Models;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,15 +14,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
+        policy.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
     });
 });
+
+builder.Services.AddSignalR();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.WebHost.UseUrls("http://localhost:7184");
 
 var app = builder.Build();
 
@@ -41,27 +44,10 @@ app.UseRouting();
 
 app.UseCors("MyPolicy");
 
-//app.UseWebSockets();
-//app.Map("/ws", async context => {
-//    if (context.WebSockets.IsWebSocketRequest)
-//    {
-//        using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
-//        {
-//            while (true)
-//            {
-//                int progressVal = SendPacketsRequestHandler.ProgressValue;
-//                int maxProgressVal = SendPacketsRequestHandler.MaxProgressValue;
-//                await webSocket.SendAsync(System.Text.Encoding.ASCII.GetBytes($"{{\"ProgressValue\":{progressVal},\"MaxProgressValue\":{maxProgressVal}}}"), WebSocketMessageType.Text, true, CancellationToken.None);
-//                await Task.Delay(500);
-//            }
-//        }
-//    }
-//    else
-//    {
-//        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-//    }
-//});
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ProgressHub>("/progresshub");
+    endpoints.MapControllers();
+});
 
-app.MapControllers();
-
-app.RunAsync();
+app.Run();

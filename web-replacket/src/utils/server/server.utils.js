@@ -18,7 +18,6 @@ export const sendPacketsRequest = async (nic, file) => {
     if(nic && file.name){
         const data = {nic: nic, fileName: file.name}
         const jsonData = JSON.stringify(data);
-        console.log(jsonData);
         try{
             const response = await fetch(SERVER_ADDRESS.sendPacketsPostRequestURL, {
                 method: 'POST',

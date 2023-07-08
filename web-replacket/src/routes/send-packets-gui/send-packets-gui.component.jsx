@@ -3,9 +3,9 @@ import * as signalR from '@microsoft/signalr';
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 
-import { selectProgressValue, selectNIC, selectFile } from "../../store/SendPackets/sendPackets.selector";
+import { selectProgressValue, selectMaxProgressValue, selectNIC, selectFile } from "../../store/SendPackets/sendPackets.selector";
 import { ConfigurationContainer } from './send-packets-gui.styles'
-import { setFile, setNIC, setProgressValue } from '../../store/SendPackets/sendPackets.action'
+import { setFile, setNIC, setProgressValue, setMaxProgressValue } from '../../store/SendPackets/sendPackets.action'
 import { sendPacketsRequest, getAvailableNIC } from '../../utils/server/server.utils'
 
 import Button from '../../Component/Button/button.component'
@@ -30,6 +30,7 @@ const SendPacketsGUI = () => {
 
     const selectedNIC = useSelector(selectNIC)
     const progressValue = useSelector(selectProgressValue)
+    const maxProgressValue = useSelector(selectMaxProgressValue);
 
     const loading = isSelectorOpen && availableNIC.length === 0;
     const protocol = PROTOCOLS_DATA.find(protocol => protocol.title === 'Send Packets')
@@ -39,6 +40,7 @@ const SendPacketsGUI = () => {
     const changeNICHandler = (event, newNIC) => dispatch(setNIC(newNIC));
     const handleSendRequest = () => sendPacketsRequest(selectedNIC, file);
     const changeProgressValueHandler = (newValue) => dispatch(setProgressValue(newValue));
+    const setMaxProgressValueHandler = (newValue) => dispatch(setMaxProgressValue(newValue));
 
     useEffect(() => {
         const connection = new signalR.HubConnectionBuilder()
@@ -46,9 +48,13 @@ const SendPacketsGUI = () => {
           .build();
     
         connection.on('ReceiveProgress', (newProgress) => {
-            console.log(`progress value ${newProgress}`)
-            changeProgressValueHandler(newProgress);
+            const value = Math.floor(newProgress * 100 / maxProgressValue)
+            changeProgressValueHandler(value); 
         });
+
+        connection.on('ReceiveMaxProgress', (maxProgress) => {
+            setMaxProgressValueHandler(maxProgress);
+        })
     
         async function startConnection() {
           try {

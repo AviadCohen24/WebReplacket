@@ -37,6 +37,7 @@ namespace ReplacketServer.Models
             _fileReader.Open();
             _device.Open();
             MaxProgressValue = (int)_fileReader.FileSize;
+            progressHub.SendMaxProgress(MaxProgressValue).Wait();
             ProgressValue = 0;
             while(_fileReader.GetNextPacket(out PacketCapture _packet) == GetPacketStatus.PacketRead)
             {
@@ -44,10 +45,11 @@ namespace ReplacketServer.Models
                 {
                     _device.SendPacket(_packet.GetPacket());
                     ProgressValue += _packet.GetPacket().PacketLength;
-                    progressHub.SendMessage(ProgressValue).Wait();
+                    progressHub.SendCurrentProgress(ProgressValue).Wait();
                 }
                 catch(Exception e) { }
             }
+            progressHub.SendCurrentProgress(MaxProgressValue).Wait();
             _fileReader.Close();
             _device.Close();
         }

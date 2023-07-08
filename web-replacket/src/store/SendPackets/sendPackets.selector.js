@@ -7,6 +7,11 @@ export const selectProgressValue = createSelector(
     (sender) => sender.progressValue
 )
 
+export const selectMaxProgressValue = createSelector(
+    [selectSendPacketReducer],
+    (sender) => sender.maxProgressValue
+)
+
 export const selectFile = createSelector(
     [selectSendPacketReducer],
     (sender) => sender.file
